@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Search, 
   Bell, 
@@ -22,6 +23,32 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      toast({
+        title: "Search initiated",
+        description: `Searching for: ${searchQuery}`,
+      });
+      // TODO: Implement actual search functionality
+      console.log('Searching for:', searchQuery);
+    }
+  };
+
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (!error) {
+      navigate('/');
+    }
+  };
 
   const navItems = [
     { name: 'Home', href: '/', icon: Home },
@@ -47,7 +74,7 @@ const Header = () => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -56,9 +83,17 @@ const Header = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-muted/50 border-border/30 focus:border-primary/50 focus:ring-primary/20"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
               />
+              <Button 
+                type="submit"
+                size="sm" 
+                className="absolute right-1 top-1/2 transform -translate-y-1/2"
+              >
+                <Search className="w-4 h-4" />
+              </Button>
             </div>
-          </div>
+          </form>
 
           {/* Navigation - Desktop */}
           <nav className="hidden lg:flex items-center space-x-1">
@@ -84,16 +119,37 @@ const Header = () => {
               </Badge>
             </Button>
 
-            {/* User Menu */}
-            <Button variant="ghost" size="sm" className="p-2">
-              <User className="w-5 h-5" />
-            </Button>
-
-            {/* Login Button */}
-            <Button variant="default" size="sm" className="hidden sm:flex items-center space-x-2 btn-primary">
-              <LogIn className="w-4 h-4" />
-              <span>Login</span>
-            </Button>
+            {/* User Menu / Login-Logout */}
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-2"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <User className="w-5 h-5" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="hidden sm:flex"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="hidden sm:flex items-center space-x-2 btn-primary"
+                onClick={handleLogin}
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Login</span>
+              </Button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <Button
@@ -111,7 +167,7 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden border-t border-border/20 py-4 animate-fade-in">
             {/* Mobile Search */}
-            <div className="mb-4">
+            <form onSubmit={handleSearch} className="mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -119,10 +175,18 @@ const Header = () => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-muted/50 border-border/30"
+                  className="pl-10 pr-16 bg-muted/50 border-border/30"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                 />
+                <Button 
+                  type="submit"
+                  size="sm" 
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2"
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
               </div>
-            </div>
+            </form>
 
             {/* Mobile Navigation Links */}
             <nav className="space-y-2">
