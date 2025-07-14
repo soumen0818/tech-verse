@@ -1,8 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CTASection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
       <div className="container mx-auto text-center">
@@ -45,11 +48,11 @@ const CTASection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-              <Button className="btn-primary text-lg px-8 py-4 group">
+              <Button className="btn-primary text-lg px-8 py-4 group" onClick={() => navigate('/auth')}>
                 Start Your Journey
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" className="btn-ghost text-lg px-8 py-4">
+              <Button variant="outline" className="btn-ghost text-lg px-8 py-4" onClick={() => navigate('/trending')}>
                 Explore Features
               </Button>
             </div>

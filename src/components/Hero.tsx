@@ -1,9 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Zap, TrendingUp, Users, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import heroImage from '@/assets/hero-tech.jpg';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  
   const stats = [
     { label: 'Active Users', value: '50K+', icon: Users },
     { label: 'Daily Posts', value: '1.2K+', icon: TrendingUp },
@@ -55,11 +58,11 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <Button className="btn-primary group">
+            <Button className="btn-primary group" onClick={() => navigate('/auth')}>
               Get Started
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button variant="outline" className="btn-ghost">
+            <Button variant="outline" className="btn-ghost" onClick={() => navigate('/community')}>
               Explore Community
             </Button>
           </div>
