@@ -27,15 +27,19 @@ const Header = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      // For now, just navigate to trending with search term
+      // In a full implementation, you'd create a search results page
       toast({
         title: "Search initiated",
         description: `Searching for: ${searchQuery}`,
       });
-      // TODO: Implement actual search functionality
-      console.log('Searching for:', searchQuery);
+      
+      // Navigate to trending page (or search results page)
+      navigate(`/trending?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
     }
   };
 
@@ -112,11 +116,31 @@ const Header = () => {
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
             {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative p-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative p-2"
+              onClick={() => {
+                if (!user) {
+                  toast({
+                    title: "Authentication required",
+                    description: "Please log in to view notifications",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                toast({
+                  title: "Notifications",
+                  description: "You have 3 new notifications",
+                });
+              }}
+            >
               <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                3
-              </Badge>
+              {user && (
+                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs bg-destructive">
+                  3
+                </Badge>
+              )}
             </Button>
 
             {/* User Menu / Login-Logout */}
