@@ -2,22 +2,23 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import type { Post, Community, Profile, UserRole } from '@/types';
 
 export const useSupabaseData = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
   // Posts
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Communities
-  const [communities, setCommunities] = useState([]);
-  const [userCommunities, setUserCommunities] = useState([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [userCommunities, setUserCommunities] = useState<string[]>([]);
 
   // User Profile
-  const [userProfile, setUserProfile] = useState(null);
-  const [userRoles, setUserRoles] = useState([]);
+  const [userProfile, setUserProfile] = useState<Profile | null>(null);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
 
   // Fetch posts
   const fetchPosts = async (category?: 'news' | 'tutorial' | 'discussion' | 'meme' | 'quick_news') => {
@@ -26,10 +27,10 @@ export const useSupabaseData = () => {
         .from('posts')
         .select(`
           *,
-          profiles(username, display_name, avatar_url),
+          profiles!posts_author_id_fkey(username, display_name, avatar_url),
           communities(name),
-          likes(count),
-          comments(count)
+          likes(id),
+          comments(id)
         `)
         .eq('is_published', true)
         .order('created_at', { ascending: false });
@@ -40,7 +41,15 @@ export const useSupabaseData = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      setPosts(data || []);
+      
+      // Transform data to include counts
+      const transformedPosts = (data || []).map(post => ({
+        ...post,
+        likes: post.likes || [],
+        comments: post.comments || []
+      })) as Post[];
+      
+      setPosts(transformedPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
       toast({
@@ -58,13 +67,21 @@ export const useSupabaseData = () => {
         .from('communities')
         .select(`
           *,
-          community_members(count),
-          posts(count)
+          community_members(id),
+          posts(id)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCommunities(data || []);
+      
+      // Transform data to include counts
+      const transformedCommunities = (data || []).map(community => ({
+        ...community,
+        member_count: community.community_members?.length || 0,
+        post_count: community.posts?.length || 0
+      }));
+      
+      setCommunities(transformedCommunities);
     } catch (error) {
       console.error('Error fetching communities:', error);
     }
@@ -94,7 +111,7 @@ export const useSupabaseData = () => {
         description: "Please log in to like posts",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
     try {
@@ -103,7 +120,7 @@ export const useSupabaseData = () => {
         .select('id')
         .eq('post_id', postId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingLike) {
         // Unlike
@@ -126,7 +143,8 @@ export const useSupabaseData = () => {
       }
       
       // Refresh posts
-      fetchPosts();
+      await fetchPosts();
+      return true;
     } catch (error) {
       console.error('Error toggling like:', error);
       toast({
@@ -134,6 +152,7 @@ export const useSupabaseData = () => {
         description: "Failed to update like",
         variant: "destructive"
       });
+      return false;
     }
   };
 
@@ -321,7 +340,7 @@ export const useSupabaseData = () => {
       // Fetch roles
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('role')
+        .select('*')
         .eq('user_id', user.id);
 
       if (rolesError) throw rolesError;
@@ -361,20 +380,53 @@ export const useSupabaseData = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
-      await Promise.all([
-        fetchPosts(),
-        fetchCommunities(),
-        fetchUserProfile()
-      ]);
-      
-      if (user) {
-        await fetchUserCommunities();
+      try {
+        await Promise.all([
+          fetchPosts(),
+          fetchCommunities(),
+          user ? fetchUserProfile() : Promise.resolve(),
+          user ? fetchUserCommunities() : Promise.resolve()
+        ]);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load application data",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     loadInitialData();
+
+    // Set up real-time subscriptions
+    const postsChannel = supabase
+      .channel('posts_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+        fetchPosts();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, () => {
+        fetchPosts();
+      })
+      .subscribe();
+
+    const communitiesChannel = supabase
+      .channel('communities_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'communities' }, () => {
+        fetchCommunities();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_members' }, () => {
+        fetchCommunities();
+        if (user) fetchUserCommunities();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(communitiesChannel);
+    };
   }, [user]);
 
   return {
@@ -399,6 +451,13 @@ export const useSupabaseData = () => {
     // Utils
     isUserJoined: (communityId: string) => userCommunities.includes(communityId),
     isAdmin: userRoles.some(role => role.role === 'admin'),
-    isModerator: userRoles.some(role => role.role === 'moderator' || role.role === 'admin')
+    isModerator: userRoles.some(role => role.role === 'moderator' || role.role === 'admin'),
+    
+    // User likes check
+    isPostLiked: (postId: string) => {
+      if (!user) return false;
+      const post = posts.find(p => p.id === postId);
+      return post?.likes?.some((like: any) => like.user_id === user.id) || false;
+    }
   };
 };

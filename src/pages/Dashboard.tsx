@@ -10,7 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import CreatePostDialog from '@/components/CreatePostDialog';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { User, Settings, FileText, Users, Zap, Plus, TrendingUp, Calendar, Heart, MessageSquare } from 'lucide-react';
+import type { Post } from '@/types';
 
 interface Profile {
   id: string;
@@ -31,16 +33,17 @@ const Dashboard = () => {
     userProfile, 
     userRoles, 
     posts, 
+    userCommunities,
     loading: dataLoading,
     fetchPosts 
   } = useSupabaseData();
   const navigate = useNavigate();
-  const [userPosts, setUserPosts] = useState([]);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userStats, setUserStats] = useState({
     totalPosts: 0,
     totalLikes: 0,
     totalComments: 0,
-    communitiesJoined: 0
+    communitiesJoined: userCommunities.length
   });
 
   useEffect(() => {
@@ -59,12 +62,12 @@ const Dashboard = () => {
       const totalLikes = myPosts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
       const totalComments = myPosts.reduce((sum, post) => sum + (post.comments?.length || 0), 0);
       
-      setUserStats({
-        totalPosts: myPosts.length,
-        totalLikes,
-        totalComments,
-        communitiesJoined: 0 // This would need a separate query
-      });
+        setUserStats({
+          totalPosts: myPosts.length,
+          totalLikes,
+          totalComments,
+          communitiesJoined: userCommunities.length
+        });
     }
   }, [user, posts]);
 
@@ -76,7 +79,7 @@ const Dashboard = () => {
   if (loading || dataLoading) {
     return (
       <div className="min-h-screen bg-gradient-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

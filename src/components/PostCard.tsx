@@ -12,14 +12,15 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, showActions = true }: PostCardProps) => {
-  const { toggleLike } = useSupabaseData();
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
+  const { toggleLike, isPostLiked } = useSupabaseData();
+  const [isLiking, setIsLiking] = useState(false);
+  const isLiked = isPostLiked(post.id);
+  const likesCount = post.likes?.length || 0;
 
   const handleLike = async () => {
+    setIsLiking(true);
     await toggleLike(post.id);
-    setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+    setIsLiking(false);
   };
 
   const handleShare = () => {
@@ -115,6 +116,7 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
+                disabled={isLiking}
                 className={`space-x-1 ${isLiked ? 'text-red-500' : ''}`}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
