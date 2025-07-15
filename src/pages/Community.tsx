@@ -66,8 +66,8 @@ const Community = () => {
           {communities.length > 0 ? (
             communities.map((community) => {
               const isJoined = isUserJoined(community.id);
-              const memberCount = community.community_members?.[0]?.count || 0;
-              const postsCount = community.posts?.[0]?.count || 0;
+              const memberCount = community.member_count || 0;
+              const postsCount = community.post_count || 0;
               
               return (
                 <Card key={community.id} className="glass-hover">

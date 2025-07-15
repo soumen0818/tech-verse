@@ -47,7 +47,7 @@ export const useSupabaseData = () => {
         ...post,
         likes: post.likes || [],
         comments: post.comments || []
-      })) as Post[];
+      })) as unknown as Post[];
       
       setPosts(transformedPosts);
     } catch (error) {

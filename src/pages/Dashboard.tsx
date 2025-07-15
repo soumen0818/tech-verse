@@ -66,10 +66,10 @@ const Dashboard = () => {
           totalPosts: myPosts.length,
           totalLikes,
           totalComments,
-          communitiesJoined: userCommunities.length
-        });
-    }
-  }, [user, posts]);
+           communitiesJoined: userCommunities.length
+         });
+     }
+   }, [user, posts, userCommunities]);
 
   const handleSignOut = async () => {
     await signOut();
