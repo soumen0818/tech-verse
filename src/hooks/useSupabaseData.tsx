@@ -27,7 +27,7 @@ export const useSupabaseData = () => {
         .from('posts')
         .select(`
           *,
-          profiles!author_id(username, display_name, avatar_url),
+          profiles(username, display_name, avatar_url),
           communities(name),
           likes(id),
           comments(id)

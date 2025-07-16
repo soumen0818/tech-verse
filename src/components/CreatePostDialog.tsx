@@ -11,14 +11,19 @@ import { Plus } from 'lucide-react';
 
 interface CreatePostDialogProps {
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultCategory?: string;
 }
 
-const CreatePostDialog = ({ trigger }: CreatePostDialogProps) => {
-  const [open, setOpen] = useState(false);
+const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCategory }: CreatePostDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
-  const [category, setCategory] = useState('discussion');
+  const [category, setCategory] = useState(defaultCategory || 'discussion');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { createPost } = useSupabaseData();
@@ -43,7 +48,7 @@ const CreatePostDialog = ({ trigger }: CreatePostDialogProps) => {
       setTitle('');
       setContent('');
       setExcerpt('');
-      setCategory('discussion');
+      setCategory(defaultCategory || 'discussion');
       setOpen(false);
     }
     
