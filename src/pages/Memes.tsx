@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+// Memes page component
 const Memes = () => {
   const { user } = useAuth();
   const { posts, toggleLike, isPostLiked, loading } = useSupabaseData();
