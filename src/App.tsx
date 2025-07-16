@@ -13,6 +13,7 @@ import Community from "./pages/Community";
 import Memes from "./pages/Memes";
 import QuickNews from "./pages/QuickNews";
 import SettingsPage from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/memes" element={<Memes />} />
               <Route path="/quick-news" element={<QuickNews />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<Admin />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

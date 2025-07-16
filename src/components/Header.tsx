@@ -131,16 +131,12 @@ const Header = () => {
                 }
                 toast({
                   title: "Notifications",
-                  description: "You have 3 new notifications",
+                  description: "No new notifications",
                 });
               }}
             >
               <Bell className="w-5 h-5" />
-              {user && (
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs bg-destructive">
-                  3
-                </Badge>
-              )}
+              {/* No badge shown unless there are actual notifications */}
             </Button>
 
             {/* User Menu / Login-Logout */}
