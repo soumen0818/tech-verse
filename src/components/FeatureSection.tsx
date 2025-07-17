@@ -106,22 +106,20 @@ const FeatureSection = () => {
           {features.map((feature, index) => (
             <Card
               key={feature.title}
-              className="glass-hover group cursor-pointer"
+              className="glass-hover group cursor-pointer overflow-hidden"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className={`p-3 rounded-xl bg-primary/10 ${feature.color} group-hover:scale-110 transition-transform duration-300`}>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start w-full gap-3 sm:gap-4">
+                  <div className={`flex-shrink-0 p-3 rounded-xl bg-primary/10 ${feature.color} group-hover:scale-110 transition-transform duration-300`} style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <feature.icon className="w-6 h-6" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-foreground">{feature.title}</h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {feature.badge}
-                      </Badge>
+                  <div className="flex-1 min-w-0 max-w-full">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-1">
+                      <h3 className="font-semibold text-foreground break-words max-w-full">{feature.title}</h3>
+                      <Badge variant="secondary" className="text-xs w-fit">{feature.badge}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed break-words max-w-full">
                       {feature.description}
                     </p>
                   </div>
@@ -139,7 +137,7 @@ const FeatureSection = () => {
           <p className="text-muted-foreground mb-6">
             Engage with the community through various social interactions
           </p>
-          <div className="flex justify-center items-center space-x-8">
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
             {socialFeatures.map((social, index) => (
               <div
                 key={social.text}
