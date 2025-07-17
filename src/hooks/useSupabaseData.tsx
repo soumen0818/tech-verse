@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -23,13 +24,15 @@ export const useSupabaseData = () => {
   // Fetch posts
   const fetchPosts = async (category?: 'news' | 'tutorial' | 'discussion' | 'meme' | 'quick_news') => {
     try {
+      console.log('Fetching posts, category:', category);
+      
       let query = supabase
         .from('posts')
         .select(`
           *,
           profiles(username, display_name, avatar_url),
           communities(name),
-          likes(id),
+          likes(id, user_id),
           comments(id)
         `)
         .eq('is_published', true)
@@ -40,7 +43,13 @@ export const useSupabaseData = () => {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched posts:', data);
       
       // Transform data to include counts
       const transformedPosts = (data || []).map(post => ({
@@ -54,9 +63,11 @@ export const useSupabaseData = () => {
       console.error('Error fetching posts:', error);
       toast({
         title: "Error",
-        description: "Failed to load posts",
+        description: "Failed to load posts. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
