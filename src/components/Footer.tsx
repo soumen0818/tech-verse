@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Zap, 
-  Github, 
-  Twitter, 
-  Linkedin, 
-  Mail, 
+import {
+  Zap,
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
   ArrowRight,
   Heart
 } from 'lucide-react';
@@ -59,22 +59,22 @@ const Footer = () => {
                   <Zap className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold gradient-text">TechVerse</h3>
+                  <h3 className="text-xl font-bold text-primary" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>TechVerse</h3>
                   <p className="text-sm text-muted-foreground font-mono">Connect</p>
                 </div>
               </div>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Your ultimate destination for technology news, insights, and community discussions. 
+                Your ultimate destination for technology news, insights, and community discussions.
                 Stay connected with the pulse of innovation.
               </p>
-              
+
               {/* Newsletter Signup */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-foreground">Stay Updated</h4>
                 <div className="flex space-x-2">
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email" 
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
                     className="flex-1 bg-muted/50 border-border/30"
                   />
                   <Button className="btn-primary px-4">
@@ -96,7 +96,7 @@ const Footer = () => {
                     <ul className="space-y-3">
                       {links.map((link) => (
                         <li key={link.name}>
-                          <Link 
+                          <Link
                             to={link.href}
                             className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                           >

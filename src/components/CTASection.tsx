@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CTASection = () => {
   const navigate = useNavigate();
-  
+
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
       <div className="container mx-auto text-center">
@@ -15,7 +15,7 @@ const CTASection = () => {
           <div className="absolute inset-0 tech-grid opacity-10" />
           <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-          
+
           {/* Content */}
           <div className="relative z-10 max-w-4xl mx-auto">
             <Badge className="mb-6 px-4 py-2 bg-primary/20 border-primary/30 text-primary animate-glow-pulse">
@@ -26,11 +26,11 @@ const CTASection = () => {
             <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-6 animate-fade-in">
               Ready to Dive into the
               <br />
-              <span className="gradient-text">Tech Universe?</span>
+              <span className="text-primary" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>Tech Universe?</span>
             </h2>
 
             <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-up">
-              Join thousands of tech enthusiasts, share your insights, discover the latest trends, 
+              Join thousands of tech enthusiasts, share your insights, discover the latest trends,
               and be part of conversations that shape the future of technology.
             </p>
 

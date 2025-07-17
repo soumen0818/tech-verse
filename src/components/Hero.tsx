@@ -6,7 +6,7 @@ import heroImage from '@/assets/hero-tech.jpg';
 
 const Hero = () => {
   const navigate = useNavigate();
-  
+
   const stats = [
     { label: 'Active Users', value: '50K+', icon: Users },
     { label: 'Daily Posts', value: '1.2K+', icon: TrendingUp },
@@ -17,9 +17,9 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={heroImage} 
-          alt="TechVerse Connect Hero" 
+        <img
+          src={heroImage}
+          alt="TechVerse Connect Hero"
           className="w-full h-full object-cover opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/80 to-primary/10" />
@@ -38,21 +38,39 @@ const Hero = () => {
           <div className="flex justify-center mb-8 animate-fade-in">
             <Badge className="px-4 py-2 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-all duration-300">
               <Zap className="w-4 h-4 mr-2" />
-              Welcome to the Future of Tech News
+              <span className="text-primary font-semibold">Welcome to the Future of Tech News</span>
             </Badge>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <span className="gradient-text">TechVerse</span>
+          <h1
+            className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in-up"
+            style={{
+              animationDelay: '0.2s',
+              color: 'hsl(var(--foreground))',
+              textShadow: '0 2px 8px rgba(0,0,0,0.25)',
+            }}
+          >
+            <span
+              className="gradient-text"
+              style={{
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'hsl(var(--primary), 1)', // fallback solid color
+                textShadow: '0 2px 8px rgba(0,0,0,0.25)',
+              }}
+            >
+              TechVerse
+            </span>
             <br />
-            <span className="text-foreground">Connect</span>
+            <span style={{ color: 'hsl(var(--foreground))', textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>Connect</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            Your ultimate destination for technology news, insightful discussions, 
-            and a thriving community of tech enthusiasts. Stay ahead of the curve 
+          <p className="text-lg sm:text-xl lg:text-2xl text-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            Your ultimate destination for technology news, insightful discussions,
+            and a thriving community of tech enthusiasts. Stay ahead of the curve
             with real-time updates and expert analysis.
           </p>
 

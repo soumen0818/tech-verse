@@ -1,13 +1,13 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Newspaper, 
-  MessageSquare, 
-  Users, 
-  Smile, 
-  Zap, 
-  Search, 
-  Shield, 
+import {
+  Newspaper,
+  MessageSquare,
+  Users,
+  Smile,
+  Zap,
+  Search,
+  Shield,
   Settings,
   TrendingUp,
   Bell,
@@ -93,10 +93,10 @@ const FeatureSection = () => {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             Everything You Need for
             <br />
-            <span className="gradient-text">Tech Discovery</span>
+            <span className="text-primary" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>Tech Discovery</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            A comprehensive platform designed for tech enthusiasts, professionals, 
+            A comprehensive platform designed for tech enthusiasts, professionals,
             and curious minds to stay informed, connected, and entertained.
           </p>
         </div>
@@ -104,8 +104,8 @@ const FeatureSection = () => {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {features.map((feature, index) => (
-            <Card 
-              key={feature.title} 
+            <Card
+              key={feature.title}
               className="glass-hover group cursor-pointer"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -133,7 +133,7 @@ const FeatureSection = () => {
 
         {/* Social Features Highlight */}
         <div className="glass rounded-3xl p-8 text-center animate-fade-in-up">
-          <h3 className="text-2xl font-bold mb-4 gradient-text-secondary">
+          <h3 className="text-2xl font-bold mb-4 text-primary" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
             Interactive Social Features
           </h3>
           <p className="text-muted-foreground mb-6">
@@ -141,8 +141,8 @@ const FeatureSection = () => {
           </p>
           <div className="flex justify-center items-center space-x-8">
             {socialFeatures.map((social, index) => (
-              <div 
-                key={social.text} 
+              <div
+                key={social.text}
                 className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors duration-200 cursor-pointer"
               >
                 <social.icon className="w-5 h-5" />

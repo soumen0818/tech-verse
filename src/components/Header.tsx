@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Search, 
-  Bell, 
-  User, 
-  Menu, 
-  X, 
+import {
+  Search,
+  Bell,
+  User,
+  Menu,
+  X,
   Zap,
   Home,
   TrendingUp,
@@ -36,7 +36,7 @@ const Header = () => {
         title: "Search initiated",
         description: `Searching for: ${searchQuery}`,
       });
-      
+
       // Navigate to trending page (or search results page)
       navigate(`/trending?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
@@ -71,8 +71,8 @@ const Header = () => {
             <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center animate-glow-pulse">
               <Zap className="w-6 h-6 text-primary-foreground" />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold gradient-text">TechVerse</h1>
+            <div>
+              <h1 className="text-xl font-bold text-primary" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>TechVerse</h1>
               <p className="text-xs text-muted-foreground font-mono">Connect</p>
             </div>
           </Link>
@@ -89,9 +89,9 @@ const Header = () => {
                 className="pl-10 bg-muted/50 border-border/30 focus:border-primary/50 focus:ring-primary/20"
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
               />
-              <Button 
+              <Button
                 type="submit"
-                size="sm" 
+                size="sm"
                 className="absolute right-1 top-1/2 transform -translate-y-1/2"
               >
                 <Search className="w-4 h-4" />
@@ -116,9 +116,9 @@ const Header = () => {
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
             {/* Notifications */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="relative p-2"
               onClick={() => {
                 if (!user) {
@@ -142,17 +142,17 @@ const Header = () => {
             {/* User Menu / Login-Logout */}
             {user ? (
               <div className="flex items-center space-x-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="p-2"
                   onClick={() => navigate('/dashboard')}
                 >
                   <User className="w-5 h-5" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleLogout}
                   className="hidden sm:flex"
                 >
@@ -160,9 +160,9 @@ const Header = () => {
                 </Button>
               </div>
             ) : (
-              <Button 
-                variant="default" 
-                size="sm" 
+              <Button
+                variant="default"
+                size="sm"
                 className="hidden sm:flex items-center space-x-2 btn-primary"
                 onClick={handleLogin}
               >
@@ -198,9 +198,9 @@ const Header = () => {
                   className="pl-10 pr-16 bg-muted/50 border-border/30"
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                 />
-                <Button 
+                <Button
                   type="submit"
-                  size="sm" 
+                  size="sm"
                   className="absolute right-1 top-1/2 transform -translate-y-1/2"
                 >
                   <Search className="w-4 h-4" />
