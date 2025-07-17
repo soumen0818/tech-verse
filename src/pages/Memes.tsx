@@ -93,7 +93,7 @@ const Memes = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Smile className="w-6 h-6 text-primary" />
-              <h1 className="text-3xl font-bold gradient-text">Tech Memes</h1>
+              <h1 className="text-3xl font-bold text-primary">Tech Memes</h1>
             </div>
             {user && (
               <Button onClick={() => setCreateDialogOpen(true)} className="btn-primary">

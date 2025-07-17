@@ -53,7 +53,7 @@ const Community = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Users className="w-6 h-6 text-primary" />
-              <h1 className="text-3xl font-bold gradient-text">Communities</h1>
+              <h1 className="text-3xl font-bold text-primary">Communities</h1>
             </div>
             {user && <CreateCommunityDialog />}
           </div>

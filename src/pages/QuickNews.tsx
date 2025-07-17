@@ -43,7 +43,7 @@ const QuickNews = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Zap className="w-6 h-6 text-primary" />
-              <h1 className="text-3xl font-bold gradient-text">Quick News</h1>
+              <h1 className="text-3xl font-bold text-primary">Quick News</h1>
             </div>
             <Button variant="outline" onClick={refreshNews} disabled={loading}>
               <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
