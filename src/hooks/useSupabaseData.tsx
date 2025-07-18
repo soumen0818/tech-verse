@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -25,15 +24,15 @@ export const useSupabaseData = () => {
   const fetchPosts = async (category?: 'news' | 'tutorial' | 'discussion' | 'meme' | 'quick_news') => {
     try {
       console.log('Fetching posts, category:', category);
-      
+
       let query = supabase
         .from('posts')
         .select(`
-          *,
+          id, created_at, title, content, category, is_published, author_id, community_id,
           profiles(username, display_name, avatar_url),
           communities(name),
-          likes(id, user_id),
-          comments(id)
+          likes:likes!inner(user_id),
+          comments(count)
         `)
         .eq('is_published', true)
         .order('created_at', { ascending: false });
@@ -43,21 +42,21 @@ export const useSupabaseData = () => {
       }
 
       const { data, error } = await query;
-      
+
       if (error) {
         console.error('Supabase error:', error);
         throw error;
       }
-      
+
       console.log('Fetched posts:', data);
-      
+
       // Transform data to include counts
       const transformedPosts = (data || []).map(post => ({
         ...post,
         likes: post.likes || [],
-        comments: post.comments || []
+        comments: post.comments[0]?.count || 0
       })) as unknown as Post[];
-      
+
       setPosts(transformedPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -78,20 +77,20 @@ export const useSupabaseData = () => {
         .from('communities')
         .select(`
           *,
-          community_members(id),
-          posts(id)
+          community_members(count),
+          posts(count)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
+
       // Transform data to include counts
-      const transformedCommunities = (data || []).map(community => ({
+      const transformedCommunities = (data || []).map(({ community_members, posts, ...community }) => ({
         ...community,
-        member_count: community.community_members?.length || 0,
-        post_count: community.posts?.length || 0
+        member_count: community_members[0]?.count || 0,
+        post_count: posts[0]?.count || 0
       }));
-      
+
       setCommunities(transformedCommunities);
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -152,7 +151,7 @@ export const useSupabaseData = () => {
         if (error) throw error;
         toast({ title: "Post liked!" });
       }
-      
+
       // Refresh posts
       await fetchPosts();
       return true;
@@ -200,7 +199,7 @@ export const useSupabaseData = () => {
         if (error) throw error;
         toast({ title: "Joined community!" });
       }
-      
+
       fetchUserCommunities();
       fetchCommunities();
     } catch (error) {
@@ -257,7 +256,7 @@ export const useSupabaseData = () => {
         .single();
 
       if (error) throw error;
-      
+
       // Auto-join the creator
       await supabase
         .from('community_members')
@@ -290,7 +289,7 @@ export const useSupabaseData = () => {
       const { data, error } = await supabase
         .from('posts')
         .select(`
-          *,
+          id, created_at, title, content, category, is_published, author_id, community_id,
           profiles(username, display_name, avatar_url),
           communities(name)
         `)
@@ -316,7 +315,7 @@ export const useSupabaseData = () => {
         title: "Successfully subscribed!",
         description: "You'll receive our latest tech updates."
       });
-      
+
       // TODO: Integrate with email service like Mailchimp, ConvertKit, etc.
       console.log('Newsletter subscription for:', email);
       return true;
@@ -372,7 +371,7 @@ export const useSupabaseData = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       toast({ title: "Profile updated successfully!" });
       fetchUserProfile();
       return true;
@@ -448,7 +447,7 @@ export const useSupabaseData = () => {
     userProfile,
     userRoles,
     loading,
-    
+
     // Actions
     fetchPosts,
     toggleLike,
@@ -458,12 +457,12 @@ export const useSupabaseData = () => {
     searchContent,
     subscribeNewsletter,
     updateUserProfile,
-    
+
     // Utils
     isUserJoined: (communityId: string) => userCommunities.includes(communityId),
     isAdmin: userRoles.some(role => role.role === 'admin'),
     isModerator: userRoles.some(role => role.role === 'moderator' || role.role === 'admin'),
-    
+
     // User likes check
     isPostLiked: (postId: string) => {
       if (!user) return false;
