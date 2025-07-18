@@ -26,16 +26,16 @@ export const useSupabaseData = () => {
       console.log('Fetching posts, category:', category);
 
       let query = supabase
-        .from('posts')
-        .select(`
-          id, created_at, title, content, category, is_published, author_id, community_id,
-          profiles(username, display_name, avatar_url),
-          communities(name),
-          likes:likes!inner(user_id),
-          comments(count)
-        `)
-        .eq('is_published', true)
-        .order('created_at', { ascending: false });
+      .from('posts')
+      .select(`
+        id, created_at, title, content, category, is_published, author_id, community_id,
+        author:profiles(username, display_name, avatar_url),  
+        communities(name),
+        likes:likes(user_id), 
+        comments(count)
+      `)
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
 
       if (category) {
         query = query.eq('category', category);
@@ -290,7 +290,7 @@ export const useSupabaseData = () => {
         .from('posts')
         .select(`
           id, created_at, title, content, category, is_published, author_id, community_id,
-          profiles(username, display_name, avatar_url),
+          author_id:profiles(username, display_name, avatar_url),
           communities(name)
         `)
         .eq('is_published', true)
