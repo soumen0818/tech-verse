@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,6 +13,20 @@ import {
 } from 'lucide-react';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Here you can send the email to your backend or show a message
+    setSubmitted(true);
+    // Optionally clear the input
+    setEmail('');
+  };
   const footerLinks = {
     Platform: [
       { name: 'Home', href: '/' },
@@ -40,10 +55,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'GitHub', icon: Github, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
-    { name: 'LinkedIn', icon: Linkedin, href: '#' },
-    { name: 'Email', icon: Mail, href: '#' },
+    { name: 'GitHub', icon: Github, href: 'https://github.com/soumen0818' },
+    { name: 'Twitter', icon: Twitter, href: 'https://x.com/SoumenDas334584' },
+    { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/soumen-das-76b867218/' },
+    { name: 'Email', icon: Mail, href: 'dassoumen0818@gmail.com' },
   ];
 
   return (
@@ -71,18 +86,21 @@ const Footer = () => {
               {/* Newsletter Signup */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-foreground">Stay Updated</h4>
-                <div className="flex space-x-2">
+                <form className="flex space-x-2" onSubmit={handleNewsletterSubmit}>
                   <Input
                     type="email"
                     placeholder="Enter your email"
                     className="flex-1 bg-muted/50 border-border/30"
+                    value={email}
+                    onChange={handleEmailChange}
+                    required
                   />
-                  <Button className="btn-primary px-4">
+                  <Button className="btn-primary px-4" type="submit" disabled={submitted && !email}>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
-                </div>
+                </form>
                 <p className="text-xs text-muted-foreground">
-                  Get weekly tech insights delivered to your inbox.
+                  {submitted ? 'Thank you for subscribing!' : 'Get weekly tech insights delivered to your inbox.'}
                 </p>
               </div>
             </div>
@@ -117,9 +135,9 @@ const Footer = () => {
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             {/* Copyright */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>© 2024 TechVerse Connect. Made with</span>
-              <Heart className="w-4 h-4 text-destructive" />
-              <span>for the tech community.</span>
+              <span>© 2025 TechVerse Connect || </span>
+
+              <span>For the tech community.</span>
             </div>
 
             {/* Social Links */}
