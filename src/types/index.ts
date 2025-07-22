@@ -1,16 +1,15 @@
 export interface Profile {
-  id: string;
-  user_id: string;
+  _id: string;
   username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  website_url: string | null;
-  location: string | null;
-  twitter_handle: string | null;
-  github_handle: string | null;
-  created_at: string;
-  updated_at: string;
+  displayName: string;
+  email: string;
+  bio: string;
+  avatar: string;
+  role: 'user' | 'admin';
+  isVerified: boolean;
+  joinedCommunities: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserRole {
