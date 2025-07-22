@@ -5,8 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Github, Mail, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,7 +14,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { signIn, signUp, signInWithGoogle, signInWithGithub, user } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
 
   // Redirect if already authenticated
@@ -35,11 +34,11 @@ const Auth = () => {
     const password = formData.get('password') as string;
 
     const { error } = await signIn(email, password);
-    
+
     if (!error) {
       navigate('/dashboard');
     }
-    
+
     setIsLoading(false);
   };
 
@@ -72,17 +71,7 @@ const Auth = () => {
     setIsLoading(false);
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    await signInWithGoogle();
-    setIsLoading(false);
-  };
 
-  const handleGithubSignIn = async () => {
-    setIsLoading(true);
-    await signInWithGithub();
-    setIsLoading(false);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-bg flex items-center justify-center p-4">
@@ -213,33 +202,6 @@ const Auth = () => {
                 </form>
               </TabsContent>
             </Tabs>
-
-            <div className="mt-6">
-              <Separator className="my-4" />
-              <div className="text-center text-sm text-muted-foreground mb-4">
-                Or continue with
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Google
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleGithubSignIn}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  <Github className="h-4 w-4 mr-2" />
-                  GitHub
-                </Button>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Shield, Users, FileText, MessageSquare, TrendingUp, AlertCircle } from 
 
 const Admin = () => {
   const { user } = useAuth();
-  const { posts, communities, isAdmin, userRoles, loading } = useSupabaseData();
+  const { posts, communities, isAdmin, userRoles, loading } = useMongoData();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const Admin = () => {
       navigate('/auth');
       return;
     }
-    
+
     if (!loading && !isAdmin) {
       navigate('/dashboard');
       return;

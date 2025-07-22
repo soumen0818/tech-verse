@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import Header from '@/components/Header';
 import CreateCommunityDialog from '@/components/CreateCommunityDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,13 +12,13 @@ import { Users, Plus, MessageSquare, Star, Crown } from 'lucide-react';
 
 const Community = () => {
   const { user } = useAuth();
-  const { 
-    communities, 
-    userCommunities, 
-    toggleCommunityMembership, 
+  const {
+    communities,
+    userCommunities,
+    toggleCommunityMembership,
     isUserJoined,
-    loading 
-  } = useSupabaseData();
+    loading
+  } = useMongoData();
   const { toast } = useToast();
 
   const handleJoinToggle = async (communityId: string, communityName: string) => {
@@ -30,7 +30,7 @@ const Community = () => {
       });
       return;
     }
-    
+
     await toggleCommunityMembership(communityId);
   };
 
@@ -68,7 +68,7 @@ const Community = () => {
               const isJoined = isUserJoined(community.id);
               const memberCount = community.member_count || 0;
               const postsCount = community.post_count || 0;
-              
+
               return (
                 <Card key={community.id} className="glass-hover">
                   <CardHeader>
@@ -106,7 +106,7 @@ const Community = () => {
                         </div>
                       </div>
                     </div>
-                    <Button 
+                    <Button
                       className={isJoined ? "w-full" : "btn-primary w-full"}
                       variant={isJoined ? "outline" : "default"}
                       onClick={() => handleJoinToggle(community.id, community.name)}
