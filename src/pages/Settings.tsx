@@ -20,11 +20,6 @@ import {
   Shield,
   Palette,
   Camera,
-  Github,
-  Twitter,
-  Globe,
-  MapPin,
-  Calendar,
   Save,
   AlertTriangle
 } from 'lucide-react';
@@ -36,13 +31,9 @@ const SettingsPage = () => {
 
   const [profile, setProfile] = useState({
     username: '',
-    display_name: '',
+    displayName: '',
     bio: '',
-    location: '',
-    website_url: '',
-    twitter_handle: '',
-    github_handle: '',
-    avatar_url: ''
+    avatar: ''
   });
 
   const [notifications, setNotifications] = useState({
@@ -81,13 +72,9 @@ const SettingsPage = () => {
     if (userProfile) {
       setProfile({
         username: userProfile.username || '',
-        display_name: userProfile.display_name || '',
+        displayName: userProfile.displayName || '',
         bio: userProfile.bio || '',
-        location: userProfile.location || '',
-        website_url: userProfile.website_url || '',
-        twitter_handle: userProfile.twitter_handle || '',
-        github_handle: userProfile.github_handle || '',
-        avatar_url: userProfile.avatar_url || ''
+        avatar: userProfile.avatar || ''
       });
     }
   }, [user, userProfile, navigate]);
@@ -170,9 +157,9 @@ const SettingsPage = () => {
                   {/* Avatar Section */}
                   <div className="flex items-center space-x-4">
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src={profile.avatar_url} />
+                      <AvatarImage src={profile.avatar} />
                       <AvatarFallback className="text-2xl">
-                        {profile.display_name?.charAt(0) || profile.username?.charAt(0) || 'U'}
+                        {profile.displayName?.charAt(0) || profile.username?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-2">
@@ -201,11 +188,11 @@ const SettingsPage = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="display_name">Display Name</Label>
+                      <Label htmlFor="displayName">Display Name</Label>
                       <Input
-                        id="display_name"
-                        value={profile.display_name}
-                        onChange={(e) => setProfile(prev => ({ ...prev, display_name: e.target.value }))}
+                        id="displayName"
+                        value={profile.displayName}
+                        onChange={(e) => setProfile(prev => ({ ...prev, displayName: e.target.value }))}
                         placeholder="Your display name"
                       />
                     </div>
@@ -220,60 +207,6 @@ const SettingsPage = () => {
                       placeholder="Tell us about yourself..."
                       rows={3}
                     />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="location">
-                        <MapPin className="w-4 h-4 inline mr-1" />
-                        Location
-                      </Label>
-                      <Input
-                        id="location"
-                        value={profile.location}
-                        onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="City, Country"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="website_url">
-                        <Globe className="w-4 h-4 inline mr-1" />
-                        Website
-                      </Label>
-                      <Input
-                        id="website_url"
-                        value={profile.website_url}
-                        onChange={(e) => setProfile(prev => ({ ...prev, website_url: e.target.value }))}
-                        placeholder="https://yourwebsite.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="twitter_handle">
-                        <Twitter className="w-4 h-4 inline mr-1" />
-                        Twitter Handle
-                      </Label>
-                      <Input
-                        id="twitter_handle"
-                        value={profile.twitter_handle}
-                        onChange={(e) => setProfile(prev => ({ ...prev, twitter_handle: e.target.value }))}
-                        placeholder="@username"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="github_handle">
-                        <Github className="w-4 h-4 inline mr-1" />
-                        GitHub Username
-                      </Label>
-                      <Input
-                        id="github_handle"
-                        value={profile.github_handle}
-                        onChange={(e) => setProfile(prev => ({ ...prev, github_handle: e.target.value }))}
-                        placeholder="username"
-                      />
-                    </div>
                   </div>
 
                   <div className="flex justify-end">

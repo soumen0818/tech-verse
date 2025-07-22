@@ -19,7 +19,7 @@ interface Profile {
   username: string;
   display_name: string;
   bio: string;
-  avatar_url: string;
+  avatarUrl: string;
   created_at: string;
 }
 
@@ -100,7 +100,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, {userProfile?.display_name || userProfile?.username}</p>
+              <p className="text-muted-foreground">Welcome back, {userProfile?.displayName || userProfile?.username}</p>
             </div>
             <div className="flex items-center space-x-3">
               <CreatePostDialog />
@@ -116,14 +116,14 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={userProfile?.avatar_url} />
+                    <AvatarImage src={userProfile?.avatarUrl} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                      {userProfile?.display_name?.charAt(0) || userProfile?.username?.charAt(0) || 'U'}
+                      {userProfile?.displayName?.charAt(0) || userProfile?.username?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <CardTitle className="text-xl">
-                      {userProfile?.display_name || userProfile?.username || 'User'}
+                      {userProfile?.displayName || userProfile?.username || 'User'}
                     </CardTitle>
                     <CardDescription>@{userProfile?.username}</CardDescription>
                     <div className="flex gap-2 mt-2">

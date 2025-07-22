@@ -142,7 +142,7 @@ const Admin = () => {
                           {post.title}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          By {post.profiles?.display_name || post.profiles?.username} • {new Date(post.created_at).toLocaleDateString()}
+                          By {post.profiles?.displayName || post.profiles?.username} • {new Date(post.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge variant="outline" className="text-xs">

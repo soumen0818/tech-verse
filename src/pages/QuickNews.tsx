@@ -104,7 +104,7 @@ const QuickNews = () => {
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center space-x-2">
-                      <span>By {post.profiles?.display_name || post.profiles?.username || 'News Bot'}</span>
+                      <span>By {post.profiles?.displayName || post.profiles?.username || 'News Bot'}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <span>{new Date(post.created_at).toLocaleDateString()}</span>
