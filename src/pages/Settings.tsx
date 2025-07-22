@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +13,12 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Shield, 
-  Palette, 
+import {
+  Settings,
+  User,
+  Bell,
+  Shield,
+  Palette,
   Camera,
   Github,
   Twitter,
@@ -31,7 +31,7 @@ import {
 
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
-  const { userProfile, updateUserProfile, userRoles } = useSupabaseData();
+  const { userProfile, updateUserProfile, userRoles } = useMongoData();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState({
@@ -312,7 +312,7 @@ const SettingsPage = () => {
                           <Switch
                             id={key}
                             checked={notifications[key as keyof typeof notifications]}
-                            onCheckedChange={(checked) => 
+                            onCheckedChange={(checked) =>
                               setNotifications(prev => ({ ...prev, [key]: checked }))
                             }
                           />
@@ -332,7 +332,7 @@ const SettingsPage = () => {
                       <Switch
                         id="push_notifications"
                         checked={notifications.push_notifications}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           setNotifications(prev => ({ ...prev, push_notifications: checked }))
                         }
                       />
@@ -365,7 +365,7 @@ const SettingsPage = () => {
                         <Switch
                           id={key}
                           checked={privacy[key as keyof typeof privacy]}
-                          onCheckedChange={(checked) => 
+                          onCheckedChange={(checked) =>
                             setPrivacy(prev => ({ ...prev, [key]: checked }))
                           }
                         />
@@ -415,7 +415,7 @@ const SettingsPage = () => {
                         <Switch
                           id={key}
                           checked={appearance[key as keyof typeof appearance]}
-                          onCheckedChange={(checked) => 
+                          onCheckedChange={(checked) =>
                             setAppearance(prev => ({ ...prev, [key]: checked }))
                           }
                         />

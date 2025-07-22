@@ -65,7 +65,7 @@ const Auth = () => {
 
     const { error } = await signUp(email, password, {
       username,
-      display_name: displayName,
+      displayName,
     });
 
     setIsLoading(false);

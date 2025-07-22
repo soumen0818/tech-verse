@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import CreatePostDialog from '@/components/CreatePostDialog';
@@ -10,7 +10,7 @@ import { TrendingUp, Plus } from 'lucide-react';
 
 const Trending = () => {
   const { user } = useAuth();
-  const { posts, loading, fetchPosts } = useSupabaseData();
+  const { posts, loading, fetchPosts } = useMongoData();
 
   useEffect(() => {
     fetchPosts();

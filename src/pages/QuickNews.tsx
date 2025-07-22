@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Zap, Clock, ExternalLink, RefreshCw } from 'lucide-react';
 
 const QuickNews = () => {
-  const { posts, loading, fetchPosts } = useSupabaseData();
+  const { posts, loading, fetchPosts } = useMongoData();
 
   useEffect(() => {
     fetchPosts('quick_news');

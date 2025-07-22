@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Smile, Heart, MessageSquare, Share2, Upload, Copy, Mail } from 'lucide-react';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { useAuth } from '@/hooks/useAuth';
 import CreatePostDialog from '@/components/CreatePostDialog';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -19,7 +19,7 @@ import {
 // Memes page component
 const Memes = () => {
   const { user } = useAuth();
-  const { posts, toggleLike, isPostLiked, loading, fetchPosts } = useSupabaseData();
+  const { posts, toggleLike, isPostLiked, loading, fetchPosts } = useMongoData();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -34,7 +34,7 @@ const Memes = () => {
   const handleShare = async (post: any, platform: string) => {
     const url = window.location.origin;
     const text = `Check out this meme: ${post.title}`;
-    
+
     try {
       switch (platform) {
         case 'whatsapp':
@@ -60,7 +60,7 @@ const Memes = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'Just now';
     if (diffInHours < 24) return `${diffInHours} hours ago`;
     return `${Math.floor(diffInHours / 24)} days ago`;
@@ -126,8 +126,8 @@ const Memes = () => {
                 <CardContent className="p-6">
                   {meme.featured_image_url ? (
                     <div className="aspect-square bg-muted/20 rounded-lg mb-4 overflow-hidden">
-                      <img 
-                        src={meme.featured_image_url} 
+                      <img
+                        src={meme.featured_image_url}
                         alt={meme.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -143,19 +143,19 @@ const Memes = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="space-y-3">
                     <h3 className="font-semibold text-sm line-clamp-2">{meme.title}</h3>
-                    
+
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>By {meme.profiles?.username || 'Anonymous'}</span>
                       <span>{formatTimeAgo(meme.created_at)}</span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between pt-2 border-t border-border/20">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className={`flex items-center space-x-1 ${isPostLiked(meme.id) ? 'text-red-500' : ''}`}
                         onClick={() => handleLike(meme.id)}
                         disabled={!user}
@@ -163,12 +163,12 @@ const Memes = () => {
                         <Heart className={`w-4 h-4 ${isPostLiked(meme.id) ? 'fill-current' : ''}`} />
                         <span>{meme.likes?.length || 0}</span>
                       </Button>
-                      
+
                       <Button variant="ghost" size="sm" className="flex items-center space-x-1">
                         <MessageSquare className="w-4 h-4" />
                         <span>{meme.comments?.length || 0}</span>
                       </Button>
-                      
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm" className="flex items-center space-x-1">
@@ -199,7 +199,7 @@ const Memes = () => {
         )}
 
         {user && (
-          <CreatePostDialog 
+          <CreatePostDialog
             open={createDialogOpen}
             onOpenChange={setCreateDialogOpen}
             defaultCategory="meme"

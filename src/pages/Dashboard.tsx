@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,14 +29,14 @@ interface UserRole {
 
 const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
-  const { 
-    userProfile, 
-    userRoles, 
-    posts, 
+  const {
+    userProfile,
+    userRoles,
+    posts,
     userCommunities,
     loading: dataLoading,
-    fetchPosts 
-  } = useSupabaseData();
+    fetchPosts
+  } = useMongoData();
   const navigate = useNavigate();
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userStats, setUserStats] = useState({
@@ -57,19 +57,19 @@ const Dashboard = () => {
       // Filter user's posts
       const myPosts = posts.filter(post => post.author_id === user.id);
       setUserPosts(myPosts);
-      
+
       // Calculate stats
       const totalLikes = myPosts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
       const totalComments = myPosts.reduce((sum, post) => sum + (post.comments?.length || 0), 0);
-      
-        setUserStats({
-          totalPosts: myPosts.length,
-          totalLikes,
-          totalComments,
-           communitiesJoined: userCommunities.length
-         });
-     }
-   }, [user, posts, userCommunities]);
+
+      setUserStats({
+        totalPosts: myPosts.length,
+        totalLikes,
+        totalComments,
+        communitiesJoined: userCommunities.length
+      });
+    }
+  }, [user, posts, userCommunities]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -182,7 +182,7 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card 
+            <Card
               className="border-primary/20 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
               onClick={() => navigate('/settings')}
             >
@@ -193,7 +193,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card 
+            <Card
               className="border-primary/20 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
               onClick={() => navigate('/trending')}
             >
@@ -204,7 +204,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card 
+            <Card
               className="border-primary/20 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
               onClick={() => navigate('/community')}
             >
@@ -215,7 +215,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card 
+            <Card
               className="border-primary/20 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer"
               onClick={() => navigate('/settings')}
             >
@@ -312,8 +312,8 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-amber-200 text-amber-700 hover:bg-amber-50"
                   onClick={() => navigate('/settings')}
                 >
