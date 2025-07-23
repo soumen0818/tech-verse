@@ -33,6 +33,7 @@ const Dashboard = () => {
     userProfile,
     userRoles,
     posts,
+    communities,
     userCommunities,
     loading: dataLoading,
     fetchPosts
@@ -54,13 +55,17 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user && posts.length > 0) {
-      // Filter user's posts
-      const myPosts = posts.filter(post => post.author_id === user.id);
+      // Filter user's posts - check multiple possible ID fields
+      const myPosts = posts.filter(post =>
+        post.author._id === user.id ||
+        post.author._id === user.username ||
+        post.authorName === user.username
+      );
       setUserPosts(myPosts);
 
       // Calculate stats
       const totalLikes = myPosts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
-      const totalComments = myPosts.reduce((sum, post) => sum + (post.comments?.length || 0), 0);
+      const totalComments = 0; // Comments not implemented yet
 
       setUserStats({
         totalPosts: myPosts.length,
@@ -70,6 +75,14 @@ const Dashboard = () => {
       });
     }
   }, [user, posts, userCommunities]);
+
+  // Add a separate effect to update stats when userCommunities changes
+  useEffect(() => {
+    setUserStats(prev => ({
+      ...prev,
+      communitiesJoined: userCommunities.length
+    }));
+  }, [userCommunities]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -100,7 +113,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, {userProfile?.displayName || userProfile?.username}</p>
+              <p className="text-muted-foreground">Welcome {userProfile?.displayName || userProfile?.username || user?.display_name || user?.username || 'User'}</p>
             </div>
             <div className="flex items-center space-x-3">
               <CreatePostDialog />
@@ -116,16 +129,21 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={userProfile?.avatarUrl} />
+                    <AvatarImage src={userProfile?.avatar} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-lg">
                       {userProfile?.displayName?.charAt(0) || userProfile?.username?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <CardTitle className="text-xl">
-                      {userProfile?.displayName || userProfile?.username || 'User'}
+                      {userProfile?.displayName || userProfile?.username || user?.display_name || user?.username || 'User'}
                     </CardTitle>
-                    <CardDescription>@{userProfile?.username}</CardDescription>
+                    <CardDescription>@{userProfile?.username || user?.username}</CardDescription>
+                    {user?.email && (
+                      <CardDescription className="text-xs text-muted-foreground mt-1">
+                        {user.email}
+                      </CardDescription>
+                    )}
                     <div className="flex gap-2 mt-2">
                       {userRoles.map((role, index) => (
                         <Badge key={index} variant="secondary" className="capitalize">
@@ -243,9 +261,22 @@ const Dashboard = () => {
                   View All
                 </Button>
               </div>
-              {posts.slice(0, 5).map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
+              {userPosts.length > 0 ? (
+                userPosts.slice(0, 5).map((post) => (
+                  <PostCard key={post._id} post={post} />
+                ))
+              ) : (
+                <Card className="glass">
+                  <CardContent className="p-8 text-center">
+                    <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No recent activity</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Start posting to see your recent activity here
+                    </p>
+                    <CreatePostDialog />
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="posts" className="space-y-4">
@@ -260,7 +291,7 @@ const Dashboard = () => {
               </div>
               {userPosts.length > 0 ? (
                 userPosts.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post._id} post={post} />
                 ))
               ) : (
                 <Card className="glass">
@@ -278,24 +309,54 @@ const Dashboard = () => {
 
             <TabsContent value="communities" className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">My Communities</h3>
+                <h3 className="text-lg font-semibold">My Communities ({userCommunities.length})</h3>
                 <Button variant="outline" size="sm" onClick={() => navigate('/community')}>
                   <Users className="w-4 h-4 mr-2" />
                   Browse All
                 </Button>
               </div>
-              <Card className="glass">
-                <CardContent className="p-8 text-center">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">Join communities</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Connect with like-minded tech enthusiasts
-                  </p>
-                  <Button onClick={() => navigate('/community')}>
-                    Explore Communities
-                  </Button>
-                </CardContent>
-              </Card>
+              {userCommunities.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {communities
+                    .filter(community => userCommunities.includes(community._id))
+                    .map((community) => (
+                      <Card key={community._id} className="glass">
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            <Avatar>
+                              <AvatarImage src={community.avatar} />
+                              <AvatarFallback>
+                                {community.name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h4 className="font-semibold">{community.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {community.membersCount || community.members?.length || 0} members
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                            {community.description}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              ) : (
+                <Card className="glass">
+                  <CardContent className="p-8 text-center">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">Join communities</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Connect with like-minded tech enthusiasts
+                    </p>
+                    <Button onClick={() => navigate('/community')}>
+                      Explore Communities
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
 

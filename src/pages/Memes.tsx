@@ -25,11 +25,11 @@ const Memes = () => {
 
   // Fetch memes on component mount
   useEffect(() => {
-    fetchPosts('meme');
+    fetchPosts('memes');
   }, []);
 
   // Filter posts to show only memes
-  const memes = posts.filter(post => post.category === 'meme');
+  const memes = posts.filter(post => post.category === 'memes' || post.category === 'meme');
 
   const handleShare = async (post: any, platform: string) => {
     const url = window.location.origin;
@@ -122,12 +122,12 @@ const Memes = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {memes.map((meme) => (
-              <Card key={meme.id} className="glass-hover cursor-pointer">
+              <Card key={meme._id} className="glass-hover cursor-pointer">
                 <CardContent className="p-6">
-                  {meme.featured_image_url ? (
+                  {meme.image ? (
                     <div className="aspect-square bg-muted/20 rounded-lg mb-4 overflow-hidden">
                       <img
-                        src={meme.featured_image_url}
+                        src={meme.image}
                         alt={meme.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -148,25 +148,25 @@ const Memes = () => {
                     <h3 className="font-semibold text-sm line-clamp-2">{meme.title}</h3>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>By {meme.profiles?.username || 'Anonymous'}</span>
-                      <span>{formatTimeAgo(meme.created_at)}</span>
+                      <span>By {meme.author?.username || meme.authorName || 'Anonymous'}</span>
+                      <span>{formatTimeAgo(meme.createdAt)}</span>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-border/20">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`flex items-center space-x-1 ${isPostLiked(meme.id) ? 'text-red-500' : ''}`}
-                        onClick={() => handleLike(meme.id)}
+                        className={`flex items-center space-x-1 ${isPostLiked(meme._id) ? 'text-red-500' : ''}`}
+                        onClick={() => handleLike(meme._id)}
                         disabled={!user}
                       >
-                        <Heart className={`w-4 h-4 ${isPostLiked(meme.id) ? 'fill-current' : ''}`} />
+                        <Heart className={`w-4 h-4 ${isPostLiked(meme._id) ? 'fill-current' : ''}`} />
                         <span>{meme.likes?.length || 0}</span>
                       </Button>
 
                       <Button variant="ghost" size="sm" className="flex items-center space-x-1">
                         <MessageSquare className="w-4 h-4" />
-                        <span>{meme.comments?.length || 0}</span>
+                        <span>0</span>
                       </Button>
 
                       <DropdownMenu>
@@ -202,7 +202,7 @@ const Memes = () => {
           <CreatePostDialog
             open={createDialogOpen}
             onOpenChange={setCreateDialogOpen}
-            defaultCategory="meme"
+            defaultCategory="memes"
           />
         )}
       </main>
