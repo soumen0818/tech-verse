@@ -190,9 +190,9 @@ app.get('/api/posts', async (req, res) => {
         }
 
         const posts = await Post.find(query)
-            .populate('author_id', 'username display_name avatar_url')
-            .populate('community_id', 'name')
-            .sort({ created_at: -1 })
+            .populate('author', 'username displayName avatar')
+            .populate('community', 'name')
+            .sort({ createdAt: -1 })
             .limit(50);
 
         res.json(posts);
@@ -205,23 +205,23 @@ app.get('/api/posts', async (req, res) => {
 // Create post
 app.post('/api/posts', authenticateToken, async (req, res) => {
     try {
-        const { title, content, excerpt, category, community_id } = req.body;
+        const { title, content, category, community } = req.body;
 
         const post = new Post({
             title,
             content,
-            excerpt: excerpt || content.substring(0, 150) + '...',
             category,
-            author_id: req.user._id,
-            community_id: community_id || null,
+            author: req.user._id,
+            authorName: req.user.displayName,
+            community: community || null,
         });
 
         await post.save();
 
         // Populate author info before sending response
-        await post.populate('author_id', 'username display_name avatar_url');
-        if (post.community_id) {
-            await post.populate('community_id', 'name');
+        await post.populate('author', 'username displayName avatar');
+        if (post.community) {
+            await post.populate('community', 'name');
         }
 
         res.status(201).json(post);
@@ -270,14 +270,14 @@ app.post('/api/posts/:id/like', authenticateToken, async (req, res) => {
 app.get('/api/communities', async (req, res) => {
     try {
         const communities = await Community.find()
-            .populate('created_by', 'username display_name')
-            .sort({ created_at: -1 });
+            .populate('creator', 'username displayName')
+            .sort({ createdAt: -1 });
 
         // Add member and post counts
         const communitiesWithCounts = await Promise.all(
             communities.map(async (community) => {
                 const member_count = community.members.length;
-                const post_count = await Post.countDocuments({ community_id: community._id });
+                const post_count = await Post.countDocuments({ community: community._id });
 
                 return {
                     ...community.toObject(),
@@ -297,29 +297,28 @@ app.get('/api/communities', async (req, res) => {
 // Create community
 app.post('/api/communities', authenticateToken, async (req, res) => {
     try {
-        const { name, description, slug } = req.body;
+        const { name, description } = req.body;
 
-        // Check if community name or slug already exists
-        const existingCommunity = await Community.findOne({
-            $or: [{ name }, { slug }]
-        });
+        // Check if community name already exists
+        const existingCommunity = await Community.findOne({ name });
 
         if (existingCommunity) {
             return res.status(400).json({
-                message: 'Community with this name or slug already exists'
+                message: 'Community with this name already exists'
             });
         }
 
         const community = new Community({
             name,
             description,
-            slug: slug || name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-            created_by: req.user._id,
-            members: [req.user._id] // Creator automatically joins
+            creator: req.user._id,
+            creatorName: req.user.displayName,
+            members: [req.user._id], // Creator automatically joins
+            category: 'technology'
         });
 
         await community.save();
-        await community.populate('created_by', 'username display_name');
+        await community.populate('creator', 'username displayName');
 
         res.status(201).json({
             ...community.toObject(),
@@ -373,7 +372,7 @@ app.get('/api/user/communities', authenticateToken, async (req, res) => {
             members: req.user._id
         }).select('_id name');
 
-        res.json(communities.map(c => c._id));
+        res.json({ communities: communities.map(c => c._id) });
     } catch (error) {
         console.error('Error fetching user communities:', error);
         res.status(500).json({ message: 'Failed to fetch user communities' });
@@ -381,6 +380,29 @@ app.get('/api/user/communities', authenticateToken, async (req, res) => {
 });
 
 // USER PROFILE ROUTES
+// Get user profile
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        res.json({ user });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Failed to fetch user profile' });
+    }
+});
+
+// Get user roles
+app.get('/api/user/roles', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('role');
+        const roles = [{ role: user.role || 'user' }];
+        res.json({ roles });
+    } catch (error) {
+        console.error('Error fetching user roles:', error);
+        res.status(500).json({ message: 'Failed to fetch user roles' });
+    }
+});
+
 // Update user profile
 app.put('/api/user/profile', authenticateToken, async (req, res) => {
     try {
@@ -419,6 +441,132 @@ app.post('/api/newsletter/subscribe', async (req, res) => {
     } catch (error) {
         console.error('Newsletter subscription error:', error);
         res.status(500).json({ message: 'Failed to subscribe to newsletter' });
+    }
+});
+
+// Debug route to check database status
+app.get('/api/debug/database', async (req, res) => {
+    try {
+        const userCount = await User.countDocuments();
+        const postCount = await Post.countDocuments();
+        const communityCount = await Community.countDocuments();
+
+        const sampleUsers = await User.find().select('username displayName email').limit(5);
+        const samplePosts = await Post.find().select('title author_id category').limit(5);
+        const sampleCommunities = await Community.find().select('name created_by').limit(5);
+
+        res.json({
+            database: 'techverse',
+            connectionStatus: 'connected',
+            counts: {
+                users: userCount,
+                posts: postCount,
+                communities: communityCount
+            },
+            samples: {
+                users: sampleUsers,
+                posts: samplePosts,
+                communities: sampleCommunities
+            }
+        });
+    } catch (error) {
+        console.error('Database debug error:', error);
+        res.status(500).json({ message: 'Database debug failed', error: error.message });
+    }
+});
+
+// Debug route to seed sample data
+app.post('/api/debug/seed', async (req, res) => {
+    try {
+        let created = { users: 0, communities: 0, posts: 0 };
+
+        // Get existing user or create one
+        let existingUser = await User.findOne();
+        if (!existingUser) {
+            const hashedPassword = await bcrypt.hash('password123', 10);
+            existingUser = new User({
+                username: 'testuser',
+                email: 'test@example.com',
+                password: hashedPassword,
+                displayName: 'Test User',
+                bio: 'This is a test user for development'
+            });
+            await existingUser.save();
+            created.users = 1;
+        }
+
+        // Create sample community if none exist
+        let sampleCommunity = await Community.findOne();
+        if (!sampleCommunity) {
+            sampleCommunity = new Community({
+                name: 'Tech Discussions',
+                description: 'A place to discuss technology trends and innovations',
+                creator: existingUser._id,
+                creatorName: existingUser.displayName,
+                members: [existingUser._id],
+                category: 'technology'
+            });
+            await sampleCommunity.save();
+            created.communities = 1;
+        }
+
+        // Create sample posts if none exist
+        const existingPosts = await Post.countDocuments();
+        if (existingPosts === 0) {
+            const samplePosts = [
+                {
+                    title: 'Welcome to Tech Verse!',
+                    content: 'This is a sample post to get you started. Explore the amazing world of technology with our community! Share your thoughts, ask questions, and connect with fellow tech enthusiasts.',
+                    author: existingUser._id,
+                    authorName: existingUser.displayName,
+                    category: 'general',
+                    community: sampleCommunity._id
+                },
+                {
+                    title: 'Latest AI Trends in 2025',
+                    content: 'Artificial Intelligence continues to evolve rapidly. Here are the key trends shaping 2025: Machine Learning democratization, Edge AI, Ethical AI frameworks, and more.',
+                    author: existingUser._id,
+                    authorName: existingUser.displayName,
+                    category: 'trending',
+                    community: sampleCommunity._id
+                },
+                {
+                    title: 'Building Modern Web Applications',
+                    content: 'Learn about the latest web development technologies including React, Next.js, TypeScript, and modern deployment strategies.',
+                    author: existingUser._id,
+                    authorName: existingUser.displayName,
+                    category: 'general',
+                    community: null
+                },
+                {
+                    title: 'Tech Meme Monday',
+                    content: 'When you finally fix that bug that has been haunting you for weeks... 🎉',
+                    author: existingUser._id,
+                    authorName: existingUser.displayName,
+                    category: 'memes',
+                    community: null
+                }
+            ];
+
+            for (const postData of samplePosts) {
+                const post = new Post(postData);
+                await post.save();
+                created.posts++;
+            }
+        }
+
+        res.json({
+            message: 'Sample data check completed!',
+            created,
+            totalCounts: {
+                users: await User.countDocuments(),
+                communities: await Community.countDocuments(),
+                posts: await Post.countDocuments()
+            }
+        });
+    } catch (error) {
+        console.error('Seed data error:', error);
+        res.status(500).json({ message: 'Failed to create sample data', error: error.message });
     }
 });
 

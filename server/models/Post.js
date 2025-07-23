@@ -23,7 +23,7 @@ const postSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['trending', 'memes', 'quicknews', 'general'],
+        enum: ['trending', 'memes', 'quicknews', 'general', 'news', 'tutorial', 'discussion', 'meme', 'quick_news'],
         default: 'general'
     },
     community: {
