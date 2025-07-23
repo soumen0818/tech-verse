@@ -57,10 +57,11 @@
 - **🔄 React Query** - Powerful data fetching and caching
 
 ### **Backend & Database**
-- **🗄️ Supabase** - Backend-as-a-Service with PostgreSQL
-- **🔒 Row Level Security (RLS)** - Database-level security policies
-- **📡 Real-time Subscriptions** - Live data updates
-- **🔑 Authentication** - Multi-provider auth system
+- **� Node.js & Express** - Fast and scalable backend server
+- **🍃 MongoDB** - NoSQL database with flexible schema
+- **� JWT Authentication** - Secure token-based authentication
+- **🛡️ bcryptjs** - Password hashing and security
+- **🌐 CORS** - Cross-origin resource sharing
 
 ### **Additional Tools**
 - **📱 Progressive Web App** - Mobile-first responsive design
@@ -74,9 +75,10 @@
 
 ### **Prerequisites**
 - Node.js 18+ and npm/yarn
+- MongoDB Atlas account (or local MongoDB)
 - Git for version control
 
-### **Installation**
+### **Quick Start**
 
 1. **Clone the repository**
    ```bash
@@ -87,37 +89,47 @@
 2. **Install dependencies**
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 3. **Environment Setup**
    ```bash
    # Copy environment variables
-   cp .env.example .env.local
+   cp .env.example .env
    
-   # Add your Supabase credentials
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   # Add your MongoDB credentials
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   PORT=5000
+   VITE_API_URL=http://localhost:5000/api
    ```
 
-4. **Start development server**
+4. **MongoDB Setup**
+   
+   **Option A: Local MongoDB (Quick Start)**
+   - MongoDB is already running on your system
+   - Use: `MONGODB_URI=mongodb://localhost:27017/techverse`
+   - ✅ **Ready to use immediately!**
+   
+   **Option B: MongoDB Atlas (Production)**
+   - Create account at [MongoDB Atlas](https://cloud.mongodb.com/)
+   - Create a new cluster
+   - Get connection string and add to `.env`
+   - **⚠️ Important**: Add your IP address to whitelist in Network Access
+
+5. **Start development server**
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
-5. **Open in browser**
+6. **Open in browser**
    ```
-   http://localhost:8080
+   Frontend: http://localhost:8080
+   Backend API: http://localhost:5000/api
    ```
 
 ### **Database Setup**
 
-1. Create a new Supabase project
-2. Run the SQL migrations in `supabase/migrations/`
-3. Enable Row Level Security on all tables
+The application will automatically create the necessary collections when you start using it. No manual schema setup required!
 4. Configure authentication providers (Google, GitHub)
 
 ---
