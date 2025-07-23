@@ -20,39 +20,57 @@ export interface UserRole {
 }
 
 export interface Community {
-  id: string;
+  _id: string;
   name: string;
-  description: string | null;
-  slug: string;
-  avatar_url: string | null;
-  banner_url: string | null;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+  description: string;
+  creator: {
+    _id: string;
+    username: string;
+    displayName: string;
+  };
+  creatorName: string;
+  members: string[];
+  membersCount: number;
+  moderators: string[];
+  category: 'technology' | 'gaming' | 'entertainment' | 'sports' | 'education' | 'general';
+  tags: string[];
+  avatar: string;
+  banner: string;
+  rules: string[];
+  isPrivate: boolean;
+  isVerified: boolean;
+  postCount: number;
+  createdAt: string;
+  updatedAt: string;
   member_count?: number;
   post_count?: number;
-  community_members?: { id: string }[];
-  posts?: { id: string }[];
 }
 
 export interface Post {
-  id: string;
+  _id: string;
   title: string;
   content: string;
-  excerpt: string | null;
-  category: 'news' | 'tutorial' | 'discussion' | 'meme' | 'quick_news';
-  author_id: string;
-  community_id: string | null;
-  is_published: boolean;
-  is_featured: boolean;
-  featured_image_url: string | null;
-  view_count: number;
-  created_at: string;
-  updated_at: string;
-  profiles?: Profile;
-  communities?: Community;
-  likes?: Like[];
-  comments?: Comment[];
+  author: {
+    _id: string;
+    username: string;
+    displayName: string;
+    avatar: string;
+  };
+  authorName: string;
+  category: 'trending' | 'memes' | 'quicknews' | 'general' | 'news' | 'tutorial' | 'discussion' | 'meme' | 'quick_news';
+  community: {
+    _id: string;
+    name: string;
+  } | null;
+  tags: string[];
+  likes: string[];
+  likesCount: number;
+  views: number;
+  image: string;
+  isPublished: boolean;
+  isPinned: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Like {
