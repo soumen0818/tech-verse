@@ -11,17 +11,17 @@ const QuickNews = () => {
   const { posts, loading, fetchPosts } = useMongoData();
 
   useEffect(() => {
-    fetchPosts('quick_news');
+    fetchPosts('quicknews');
   }, []);
 
   // Filter for quick news posts and sort by latest
   const quickNewsPosts = posts
-    .filter(post => post.category === 'quick_news' && post.is_published)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .filter(post => post.category === 'quicknews' && post.isPublished)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10);
 
   const refreshNews = () => {
-    fetchPosts('quick_news');
+    fetchPosts('quicknews');
   };
 
   if (loading) {
@@ -72,7 +72,7 @@ const QuickNews = () => {
         <div className="space-y-4">
           {quickNewsPosts.length > 0 ? (
             quickNewsPosts.map((post) => (
-              <Card key={post.id} className="glass-hover cursor-pointer group">
+              <Card key={post._id} className="glass-hover cursor-pointer group">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -86,7 +86,7 @@ const QuickNews = () => {
                         <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                           <Clock className="w-3 h-3" />
                           <span>
-                            {new Date(post.created_at).toLocaleTimeString()}
+                            {new Date(post.createdAt).toLocaleTimeString()}
                           </span>
                         </div>
                       </div>
@@ -94,7 +94,7 @@ const QuickNews = () => {
                         {post.title}
                       </CardTitle>
                       <p className="text-muted-foreground text-sm">
-                        {post.excerpt || post.content.substring(0, 150) + '...'}
+                        {post.content.substring(0, 150) + '...'}
                       </p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-muted-foreground ml-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -104,10 +104,10 @@ const QuickNews = () => {
                 <div className="px-6 pb-4">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center space-x-2">
-                      <span>By {post.profiles?.displayName || post.profiles?.username || 'News Bot'}</span>
+                      <span>By {post.author?.displayName || post.author?.username || 'News Bot'}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>

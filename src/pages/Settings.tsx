@@ -199,6 +199,20 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      value={user?.email || ''}
+                      disabled
+                      placeholder="Your email address"
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Email cannot be changed. Contact support if you need to update your email.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
                       id="bio"
