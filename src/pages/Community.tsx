@@ -65,17 +65,17 @@ const Community = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {communities.length > 0 ? (
             communities.map((community) => {
-              const isJoined = isUserJoined(community.id);
+              const isJoined = isUserJoined(community._id);
               const memberCount = community.member_count || 0;
               const postsCount = community.post_count || 0;
 
               return (
-                <Card key={community.id} className="glass-hover">
+                <Card key={community._id} className="glass-hover">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 flex-1">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={community.avatar_url} />
+                          <AvatarImage src={community.avatar} />
                           <AvatarFallback className="bg-primary text-primary-foreground">
                             {community.name.charAt(0)}
                           </AvatarFallback>
@@ -109,12 +109,12 @@ const Community = () => {
                     <Button
                       className={isJoined ? "w-full" : "btn-primary w-full"}
                       variant={isJoined ? "outline" : "default"}
-                      onClick={() => handleJoinToggle(community.id, community.name)}
+                      onClick={() => handleJoinToggle(community._id, community.name)}
                     >
                       {isJoined ? (
                         <>
                           <Star className="w-4 h-4 mr-2 fill-current" />
-                          Joined
+                          Leave Community
                         </>
                       ) : (
                         <>

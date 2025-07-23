@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -81,7 +81,15 @@ const Auth = () => {
           <p className="text-muted-foreground mt-2">Join the tech community</p>
         </div>
 
-        <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
+        <Card className="border-primary/20 bg-card/50 backdrop-blur-sm relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-2 top-2 h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+            onClick={() => navigate('/')}
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <CardHeader>
             <CardTitle className="text-center">Welcome</CardTitle>
             <CardDescription className="text-center">
