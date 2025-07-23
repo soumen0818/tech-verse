@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { useAuth } from '@/hooks/useAuth';
 import { Plus } from 'lucide-react';
 
@@ -25,8 +25,8 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
   const [excerpt, setExcerpt] = useState('');
   const [category, setCategory] = useState(defaultCategory || 'discussion');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { createPost } = useSupabaseData();
+
+  const { createPost } = useMongoData();
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
     if (!user || !title.trim() || !content.trim()) return;
 
     setIsSubmitting(true);
-    
+
     const postData = {
       title: title.trim(),
       content: content.trim(),
@@ -43,7 +43,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
     };
 
     const result = await createPost(postData);
-    
+
     if (result) {
       setTitle('');
       setContent('');
@@ -51,7 +51,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
       setCategory(defaultCategory || 'discussion');
       setOpen(false);
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -67,12 +67,15 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
           </Button>
         )}
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New Post</DialogTitle>
+          <DialogDescription>
+            Share your thoughts, insights, or questions with the tech community.
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -84,7 +87,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="excerpt">Excerpt (Optional)</Label>
             <Input
@@ -94,7 +97,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
               placeholder="Brief description of your post..."
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -102,15 +105,17 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="general">General</SelectItem>
+                <SelectItem value="discussion">Discussion</SelectItem>
                 <SelectItem value="news">News</SelectItem>
                 <SelectItem value="tutorial">Tutorial</SelectItem>
-                <SelectItem value="discussion">Discussion</SelectItem>
-                <SelectItem value="meme">Meme</SelectItem>
-                <SelectItem value="quick_news">Quick News</SelectItem>
+                <SelectItem value="memes">Memes</SelectItem>
+                <SelectItem value="quicknews">Quick News</SelectItem>
+                <SelectItem value="trending">Trending</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>
             <Textarea
@@ -122,7 +127,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
               required
             />
           </div>
-          
+
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

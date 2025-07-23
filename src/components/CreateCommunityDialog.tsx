@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 import { useAuth } from '@/hooks/useAuth';
 import { Plus } from 'lucide-react';
 
@@ -17,8 +17,8 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { createCommunity } = useSupabaseData();
+
+  const { createCommunity } = useMongoData();
   const { user } = useAuth();
 
   const generateSlug = (name: string) => {
@@ -34,7 +34,7 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
     if (!user || !name.trim()) return;
 
     setIsSubmitting(true);
-    
+
     const communityData = {
       name: name.trim(),
       description: description.trim(),
@@ -42,13 +42,13 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
     };
 
     const result = await createCommunity(communityData);
-    
+
     if (result) {
       setName('');
       setDescription('');
       setOpen(false);
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -64,12 +64,15 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
           </Button>
         )}
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create New Community</DialogTitle>
+          <DialogDescription>
+            Create a new community to connect with like-minded tech enthusiasts and share knowledge.
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Community Name</Label>
@@ -81,7 +84,7 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
@@ -92,7 +95,7 @@ const CreateCommunityDialog = ({ trigger }: CreateCommunityDialogProps) => {
               rows={4}
             />
           </div>
-          
+
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
