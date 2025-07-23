@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, MessageSquare, Share2, Eye, MoreHorizontal } from 'lucide-react';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useMongoData } from '@/hooks/useMongoData';
 
 interface PostCardProps {
   post: any;
@@ -12,14 +12,14 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, showActions = true }: PostCardProps) => {
-  const { toggleLike, isPostLiked } = useSupabaseData();
+  const { toggleLike, isPostLiked } = useMongoData();
   const [isLiking, setIsLiking] = useState(false);
-  const isLiked = isPostLiked(post.id);
+  const isLiked = isPostLiked(post._id);
   const likesCount = post.likes?.length || 0;
 
   const handleLike = async () => {
     setIsLiking(true);
-    await toggleLike(post.id);
+    await toggleLike(post._id);
     setIsLiking(false);
   };
 
@@ -28,10 +28,10 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
       navigator.share({
         title: post.title,
         text: post.excerpt || post.content.substring(0, 100) + '...',
-        url: window.location.href + '/post/' + post.id
+        url: window.location.href + '/post/' + post._id
       });
     } else {
-      navigator.clipboard.writeText(window.location.href + '/post/' + post.id);
+      navigator.clipboard.writeText(window.location.href + '/post/' + post._id);
     }
   };
 
@@ -39,7 +39,7 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'just now';
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 48) return 'yesterday';
@@ -87,7 +87,7 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         <div>
           <CardTitle className="text-lg mb-2 hover:text-primary transition-colors">
@@ -100,8 +100,8 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
           )}
           {post.featured_image_url && (
             <div className="w-full h-48 bg-muted rounded-lg overflow-hidden mb-3">
-              <img 
-                src={post.featured_image_url} 
+              <img
+                src={post.featured_image_url}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -122,18 +122,18 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
                 <span>{likesCount}</span>
               </Button>
-              
+
               <Button variant="ghost" size="sm" className="space-x-1">
                 <MessageSquare className="h-4 w-4" />
                 <span>{post.comments?.length || 0}</span>
               </Button>
-              
+
               <Button variant="ghost" size="sm" onClick={handleShare} className="space-x-1">
                 <Share2 className="h-4 w-4" />
                 <span>Share</span>
               </Button>
             </div>
-            
+
             <div className="flex items-center space-x-1 text-muted-foreground text-sm">
               <Eye className="h-4 w-4" />
               <span>{post.view_count || 0}</span>
