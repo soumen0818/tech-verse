@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 // Import models
 import User from './models/User.js';
@@ -43,6 +45,69 @@ const connectDB = async () => {
 
 // Connect to MongoDB
 connectDB();
+
+// Email transporter configuration
+let emailTransporter = null;
+
+const setupEmailTransporter = async () => {
+    try {
+        // Check if email configuration exists
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS &&
+            process.env.EMAIL_USER !== 'your-email@gmail.com' &&
+            process.env.EMAIL_PASS !== 'your-gmail-app-password-here') {
+
+            emailTransporter = nodemailer.createTransport({
+                service: process.env.EMAIL_SERVICE || 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            // Verify transporter
+            emailTransporter.verify((error, success) => {
+                if (error) {
+                    console.log('❌ Email configuration error:', error.message);
+                    console.log('📧 Email functionality will use mock mode');
+                    emailTransporter = null;
+                } else {
+                    console.log('✅ Email transporter ready');
+                }
+            });
+        } else {
+            // Create test account for development
+            console.log('📧 Setting up test email account...');
+            try {
+                const testAccount = await nodemailer.createTestAccount();
+
+                emailTransporter = nodemailer.createTransport({
+                    host: 'smtp.ethereal.email',
+                    port: 587,
+                    secure: false,
+                    auth: {
+                        user: testAccount.user,
+                        pass: testAccount.pass
+                    }
+                });
+
+                console.log('✅ Test email account created');
+                console.log('� Test emails will be viewable at: https://ethereal.email/');
+                console.log('💡 To use real Gmail, update EMAIL_USER and EMAIL_PASS in .env');
+            } catch (testError) {
+                console.log('❌ Failed to create test account, using mock mode');
+                console.log('💡 To enable emails, update .env with real Gmail credentials');
+                emailTransporter = null;
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error setting up email transporter:', error);
+        emailTransporter = null;
+    }
+};
+
+(async () => {
+    await setupEmailTransporter();
+})();
 
 // Auth middleware
 const authenticateToken = async (req, res, next) => {
@@ -176,6 +241,114 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
             bio: req.user.bio
         }
     });
+});
+
+// Forgot Password
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            // Don't reveal if email exists for security reasons
+            return res.json({
+                message: 'If an account with that email exists, a password reset link has been sent.'
+            });
+        }
+
+        // Generate a secure reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+        // Save token to user (you might want to add these fields to the User model)
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = resetTokenExpiry;
+        await user.save();
+
+        console.log(`Password reset requested for: ${email}`);
+        console.log(`Reset token generated: ${resetToken}`);
+
+        // Prepare reset URL (in production, this would be your frontend URL)
+        const resetUrl = `http://localhost:8081/reset-password?token=${resetToken}`;
+
+        // Send email
+        if (emailTransporter) {
+            try {
+                const mailOptions = {
+                    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+                    to: user.email,
+                    subject: 'Password Reset Request - TechVerse',
+                    html: `
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+                            <h2 style="color: #333; text-align: center;">Password Reset Request</h2>
+                            <p>Hello ${user.displayName || user.username},</p>
+                            <p>You have requested to reset your password for TechVerse. Click the button below to reset your password:</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+                            </div>
+                            <p>Or copy and paste this link in your browser:</p>
+                            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+                            <p><strong>This link will expire in 1 hour.</strong></p>
+                            <p>If you didn't request this password reset, please ignore this email.</p>
+                            <hr style="margin: 30px 0;">
+                            <p style="color: #666; font-size: 12px;">TechVerse - Your Tech Community</p>
+                        </div>
+                    `
+                };
+
+                const info = await emailTransporter.sendMail(mailOptions);
+                console.log(`✅ Password reset email sent to: ${user.email}`);
+
+                // If using Ethereal test account, show preview URL
+                const previewUrl = nodemailer.getTestMessageUrl(info);
+                if (previewUrl) {
+                    console.log(`📧 Preview email at: ${previewUrl}`);
+                }
+
+                res.json({
+                    message: 'If an account with that email exists, a password reset link has been sent.',
+                    ...(process.env.NODE_ENV === 'development' && {
+                        debug: 'Email sent successfully',
+                        resetUrl: resetUrl,
+                        ...(previewUrl && { emailPreview: previewUrl })
+                    })
+                });
+
+            } catch (emailError) {
+                console.error('❌ Error sending email:', emailError);
+
+                // Fallback: still return success but log the error
+                res.json({
+                    message: 'If an account with that email exists, a password reset link has been sent.',
+                    ...(process.env.NODE_ENV === 'development' && {
+                        debug: 'Email sending failed, using mock mode',
+                        resetUrl: resetUrl,
+                        error: emailError.message
+                    })
+                });
+            }
+        } else {
+            // Mock mode - just log the reset URL
+            console.log(`📧 MOCK EMAIL MODE - Reset URL: ${resetUrl}`);
+
+            res.json({
+                message: 'If an account with that email exists, a password reset link has been sent.',
+                ...(process.env.NODE_ENV === 'development' && {
+                    debug: 'Mock email mode - check console for reset URL',
+                    resetUrl: resetUrl
+                })
+            });
+        }
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'Server error processing password reset request' });
+    }
 });
 
 // POST ROUTES
