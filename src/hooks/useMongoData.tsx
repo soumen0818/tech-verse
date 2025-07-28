@@ -4,6 +4,72 @@ import { useToast } from './use-toast';
 import type { Post, Community, Profile } from '@/types';
 
 export const useMongoData = () => {
+    // Update post
+    const updatePost = async (postId: string, postData: any) => {
+        if (!user) return false;
+        try {
+            const token = getToken();
+            const response = await fetch(`${API_BASE}/posts/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(postData)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                toast({
+                    title: "Updated",
+                    description: "Post updated successfully!"
+                });
+                await fetchPosts();
+                return true;
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error updating post:', error);
+            toast({
+                title: "Error",
+                description: "Failed to update post",
+                variant: "destructive"
+            });
+            return false;
+        }
+    };
+    // Delete post
+    const deletePost = async (postId: string) => {
+        if (!user) return false;
+        try {
+            const token = getToken();
+            const response = await fetch(`${API_BASE}/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                toast({
+                    title: "Deleted",
+                    description: "Post deleted successfully!"
+                });
+                await fetchPosts();
+                return true;
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete post",
+                variant: "destructive"
+            });
+            return false;
+        }
+    };
     const { user } = useAuth();
     const { toast } = useToast();
 
@@ -102,27 +168,34 @@ export const useMongoData = () => {
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
-            toast({
-                title: "Error",
-                description: "Failed to fetch posts",
-                variant: "destructive"
-            });
-        }
-    };
-
-    // Fetch communities
-    const fetchCommunities = async () => {
-        try {
-            const response = await fetch(`${API_BASE}/communities`);
-            const data = await response.json();
-
-            if (response.ok) {
-                setCommunities(data);
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching communities:', error);
+            // Always return all expected properties, even in error case
+            return {
+                posts,
+                communities,
+                userCommunities,
+                userProfile,
+                loading,
+                fetchPosts,
+                createPost,
+                createCommunity,
+                toggleLike,
+                isPostLiked: (postId: string) => {
+                    const post = posts.find(p => p._id === postId);
+                    if (!post?.likes) return false;
+                    return post.likes.some((like: any) => typeof like === 'string' ? like === user?.id : like.user_id === user?.id);
+                },
+                isCommunityJoined: (communityId: string) => userCommunities.includes(communityId),
+                joinCommunity: toggleCommunityMembership,
+                leaveCommunity: toggleCommunityMembership,
+                updateProfile: async (profileData: any) => false,
+                deletePost: async () => false,
+                updatePost: async () => false,
+                userRoles,
+                fetchUserProfile,
+                fetchUserCommunities,
+                fetchUserRoles,
+                isAdmin: userRoles.some((role: any) => role.role === 'admin'),
+            };
             toast({
                 title: "Error",
                 description: "Failed to fetch communities",
@@ -190,7 +263,7 @@ export const useMongoData = () => {
                     title: "Success",
                     description: "Community created successfully!"
                 });
-                await fetchCommunities();
+                // Optionally refresh communities if needed
                 return true;
             } else {
                 throw new Error(data.message);
@@ -271,7 +344,6 @@ export const useMongoData = () => {
                     title: data.joined ? "Joined community!" : "Left community"
                 });
                 console.log('Community membership toggled:', data); // Debug log
-                await fetchCommunities();
                 await fetchUserCommunities(); // Refresh user communities after joining/leaving
                 return true;
             } else {
@@ -293,11 +365,7 @@ export const useMongoData = () => {
         const loadInitialData = async () => {
             setLoading(true);
             try {
-                await Promise.all([
-                    fetchPosts(),
-                    fetchCommunities()
-                ]);
-
+                await fetchPosts();
                 // Fetch user-specific data if user is logged in
                 if (user) {
                     await Promise.all([
@@ -317,7 +385,6 @@ export const useMongoData = () => {
                 setLoading(false);
             }
         };
-
         loadInitialData();
     }, [user]);
 
@@ -328,24 +395,20 @@ export const useMongoData = () => {
         userProfile,
         loading,
         fetchPosts,
-        toggleLike,
-        toggleCommunityMembership,
         createPost,
         createCommunity,
-        isUserJoined: (communityId: string) => userCommunities.includes(communityId),
+        toggleLike,
         isPostLiked: (postId: string) => {
             const post = posts.find(p => p._id === postId);
-            // Handle both string array (MongoDB) and Like objects (old structure)
             if (!post?.likes) return false;
-            return post.likes.some((like: any) => {
-                return typeof like === 'string' ? like === user?.id : like.user_id === user?.id;
-            });
+            return post.likes.some((like: any) => typeof like === 'string' ? like === user?.id : like.user_id === user?.id);
         },
-        // Add missing properties for compatibility
-        userRoles,
-        fetchUserProfile,
-        fetchUserCommunities,
-        updateUserProfile: async (profileData: any) => {
+        deletePost,
+        updatePost, // <-- Added here
+        isCommunityJoined: (communityId: string) => userCommunities.includes(communityId),
+        joinCommunity: toggleCommunityMembership,
+        leaveCommunity: toggleCommunityMembership,
+        updateProfile: async (profileData: any) => {
             if (!user) {
                 toast({
                     title: "Authentication required",
@@ -354,7 +417,6 @@ export const useMongoData = () => {
                 });
                 return false;
             }
-
             try {
                 const token = getToken();
                 const response = await fetch(`${API_BASE}/user/profile`, {
@@ -365,9 +427,7 @@ export const useMongoData = () => {
                     },
                     body: JSON.stringify(profileData)
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     setUserProfile(data.user);
                     toast({
@@ -388,6 +448,9 @@ export const useMongoData = () => {
                 return false;
             }
         },
-        isAdmin: userRoles.some((role: any) => role.role === 'admin')
+        isAdmin: userRoles.some((role: any) => role.role === 'admin'),
+        fetchUserProfile,
+        fetchUserCommunities,
+        userRoles,
     };
 };

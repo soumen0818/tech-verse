@@ -246,38 +246,12 @@ const Dashboard = () => {
           </div>
 
           {/* Main Content Tabs */}
-          <Tabs defaultValue="activity" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+          <Tabs defaultValue="posts" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="posts">My Posts</TabsTrigger>
               <TabsTrigger value="communities">Communities</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="activity" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Recent Activity</h3>
-                <Button variant="outline" size="sm">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  View All
-                </Button>
-              </div>
-              {userPosts.length > 0 ? (
-                userPosts.slice(0, 5).map((post) => (
-                  <PostCard key={post._id} post={post} />
-                ))
-              ) : (
-                <Card className="glass">
-                  <CardContent className="p-8 text-center">
-                    <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">No recent activity</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Start posting to see your recent activity here
-                    </p>
-                    <CreatePostDialog />
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
 
             <TabsContent value="posts" className="space-y-4">
               <div className="flex items-center justify-between">
