@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,36 +14,53 @@ interface CreatePostDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   defaultCategory?: string;
+  postToEdit?: any;
 }
 
-const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCategory }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCategory, postToEdit }: CreatePostDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = onOpenChange || setInternalOpen;
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [excerpt, setExcerpt] = useState('');
-  const [category, setCategory] = useState(defaultCategory || 'discussion');
+  const [title, setTitle] = useState(postToEdit ? postToEdit.title : '');
+  const [content, setContent] = useState(postToEdit ? postToEdit.content : '');
+  const [excerpt, setExcerpt] = useState(postToEdit ? postToEdit.excerpt : '');
+  const [category, setCategory] = useState(postToEdit ? postToEdit.category : defaultCategory || 'discussion');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { createPost } = useMongoData();
+  const { createPost, updatePost } = useMongoData();
   const { user } = useAuth();
+
+  // Prefill fields when editing
+  useEffect(() => {
+    if (postToEdit) {
+      setTitle(postToEdit.title || '');
+      setContent(postToEdit.content || '');
+      setExcerpt(postToEdit.excerpt || '');
+      setCategory(postToEdit.category || defaultCategory || 'discussion');
+    } else {
+      setTitle('');
+      setContent('');
+      setExcerpt('');
+      setCategory(defaultCategory || 'discussion');
+    }
+  }, [postToEdit, defaultCategory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !title.trim() || !content.trim()) return;
-
     setIsSubmitting(true);
-
     const postData = {
       title: title.trim(),
       content: content.trim(),
       excerpt: excerpt.trim() || content.substring(0, 150) + '...',
       category
     };
-
-    const result = await createPost(postData);
-
+    let result;
+    if (postToEdit && postToEdit._id) {
+      result = await updatePost(postToEdit._id, postData);
+    } else {
+      result = await createPost(postData);
+    }
     if (result) {
       setTitle('');
       setContent('');
@@ -51,7 +68,6 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
       setCategory(defaultCategory || 'discussion');
       setOpen(false);
     }
-
     setIsSubmitting(false);
   };
 
@@ -63,16 +79,16 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
         {trigger || (
           <Button className="btn-primary">
             <Plus className="w-4 h-4 mr-2" />
-            Create Post
+            {postToEdit ? 'Edit Post' : 'Create Post'}
           </Button>
         )}
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Post</DialogTitle>
+          <DialogTitle>{postToEdit ? 'Edit Post' : 'Create New Post'}</DialogTitle>
           <DialogDescription>
-            Share your thoughts, insights, or questions with the tech community.
+            {postToEdit ? 'Update your post details below.' : 'Share your thoughts, insights, or questions with the tech community.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -133,7 +149,7 @@ const CreatePostDialog = ({ trigger, open: externalOpen, onOpenChange, defaultCa
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || !title.trim() || !content.trim()}>
-              {isSubmitting ? 'Creating...' : 'Create Post'}
+              {isSubmitting ? (postToEdit ? 'Updating...' : 'Creating...') : (postToEdit ? 'Update Post' : 'Create Post')}
             </Button>
           </div>
         </form>

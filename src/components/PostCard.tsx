@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageSquare, Share2, Eye, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Eye, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { useMongoData } from '@/hooks/useMongoData';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import CreatePostDialog from '@/components/CreatePostDialog';
 
 interface PostCardProps {
   post: any;
@@ -12,7 +14,8 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, showActions = true }: PostCardProps) => {
-  const { toggleLike, isPostLiked } = useMongoData();
+  const { toggleLike, isPostLiked, deletePost } = useMongoData();
+  const [editOpen, setEditOpen] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const isLiked = isPostLiked(post._id);
   const likesCount = post.likes?.length || 0;
@@ -81,9 +84,21 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
             <Badge className="capitalize">
               {post.category}
             </Badge>
-            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => deletePost(post._id)}>
+                  <Trash2 className="h-4 w-4 mr-2" /> Delete Post
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                  <Edit className="h-4 w-4 mr-2" /> Edit Post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
@@ -139,6 +154,9 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
               <span>{post.view_count || 0}</span>
             </div>
           </div>
+        )}
+        {editOpen && (
+          <CreatePostDialog open={editOpen} onOpenChange={setEditOpen} defaultCategory={post.category} />
         )}
       </CardContent>
     </Card>
