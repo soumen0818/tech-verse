@@ -15,6 +15,26 @@ interface PostCardProps {
 
 const PostCard = ({ post, showActions = true }: PostCardProps) => {
   const { toggleLike, isPostLiked, deletePost } = useMongoData();
+
+  // Enhanced delete handler to show error if backend returns HTML (404)
+  const handleDelete = async (postId: string) => {
+    try {
+      const result = await deletePost(postId);
+      if (!result) {
+        // If deletePost returns false, show error toast (handled in hook)
+        return;
+      }
+      // Optionally, you can add a callback here to update UI if needed
+    } catch (error: any) {
+      // If error is thrown due to non-JSON response, show a toast
+      if (error.message && error.message.includes('Server did not return JSON')) {
+        // You can use your toast system here
+        alert('Delete failed: Server did not return JSON. Check backend route.');
+      } else {
+        alert('Delete failed: ' + (error.message || 'Unknown error'));
+      }
+    }
+  };
   const [editOpen, setEditOpen] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const isLiked = isPostLiked(post._id);
@@ -91,7 +111,7 @@ const PostCard = ({ post, showActions = true }: PostCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => deletePost(post._id)}>
+                <DropdownMenuItem onClick={() => handleDelete(post._id)}>
                   <Trash2 className="h-4 w-4 mr-2" /> Delete Post
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>
