@@ -69,9 +69,8 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl lg:text-2xl text-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            Your ultimate destination for technology news, insightful discussions,
-            and a thriving community of tech enthusiasts. Stay ahead of the curve
-            with real-time updates and expert analysis.
+            Your Ultimate Tech HubStay ahead with cutting-edge technology news, real-time updates, and expert insights.
+            Join a vibrant community of innovators and enthusiasts where ideas spark discussions, and discussions shape the future.
           </p>
 
           {/* CTA Buttons */}
